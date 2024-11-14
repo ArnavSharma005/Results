@@ -19,11 +19,7 @@ app.get("/", (req, res) => {
   res.send("Hello from the server");
 });
 
-import busStandRoutes from "./routes/busStandRoutes.js";
-app.use("/api/busStand", busStandRoutes);
+import adminRoutes from "./routes/adminRoutes.js";
+app.use("/admin", adminRoutes);
 
-import busRouteRoutes from "./routes/busRouteRoutes.js";
-app.use("/api/busRoute", busRouteRoutes);
 
-import busRoutes from "./routes/busRoutes.js";
-app.use("/api/bus", busRoutes);
