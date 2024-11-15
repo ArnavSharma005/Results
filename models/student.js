@@ -2,19 +2,23 @@ import mongoose from "mongoose"
 import bcrypt from "bcrypt"
 
 const studentSchema = new mongoose.Schema({
+  rollNumber: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   department: { type: String, required: true }, // e.g., "Computer Science"
-  year: { type: Number, required: true }, // e.g., 1, 2, 3, 4
-  semester: { type: Number, required: true }, // e.g., 1 or 2
+  academicYear: {
+    type: String,
+    required: true,
+  },
+
+  semester: { type: Number, required: true, min: 1, max: 8 },
   branch: { type: String, required: true },
   subsection: { type: String, required: true },
 
   subjects: [
     {
-      year: { type: Number, required: true },
-      semester: { type: Number, required: true },
+      semester: { type: Number, required: true, min: 1, max: 8 },
       coreSubjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }],
       optionalSubjects: [
         { type: mongoose.Schema.Types.ObjectId, ref: "Subject" },

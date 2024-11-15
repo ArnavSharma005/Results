@@ -2,22 +2,23 @@ import mongoose from "mongoose"
 
 // Define a sub-schema for subject-class mapping
 const subjectClassMappingSchema = new mongoose.Schema({
-  subjectCode: {
-    type: String,
+  subject: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subject",
     required: true,
   },
   classesTaught: [
     {
-      class: {
+      branch: {
         type: String,
-        required: true,
+        required: true, //like IT-B
       },
       academicYear: {
-        type: String,
+        type: String, //like 2023-27
         required: true,
       },
       semester: {
-        type: Number,
+        type: Number, //1 or 2
         required: true,
       },
     },

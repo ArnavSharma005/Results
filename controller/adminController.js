@@ -1,6 +1,7 @@
 import Teacher from "../models/teacher.js"
 import Subject from "../models/subject.js"
 import Student from "../models/student.js"
+import Result from "../models/result.js"
 export const addSubject = async (req, res) => {
   const {
     name,
@@ -40,11 +41,12 @@ export const addSubject = async (req, res) => {
 }
 export const addStudent = async (req, res) => {
   const {
+    rollNumber,
     name,
     email,
     password,
     department,
-    year,
+    academicYear,
     semester,
     branch,
     subsection,
@@ -53,17 +55,17 @@ export const addStudent = async (req, res) => {
   } = req.body
   try {
     const newStudent = new Student({
+      rollNumber,
       name,
       email,
       password,
       department,
-      year,
+      academicYear,
       semester,
       subsection,
       branch,
       subjects: [
         {
-          year: year,
           semester: semester,
           coreSubjects,
           optionalSubjects,
@@ -84,24 +86,10 @@ export const addStudent = async (req, res) => {
 }
 
 export const addTeacher = async (req, res) => {
-  const { name, email, password, department, subjectCodes, classes } = req.body
+  const { name, email, password, department, subjectsAndClasses } = req.body
 
   try {
-    // Check if classes are provided as expected
-    if (!subjectCodes || !classes || subjectCodes.length !== classes.length) {
-      return res.status(400).json({
-        message: "Subject codes and classes do not match or are missing.",
-      })
-    }
-
-    // Map `subjectCodes` and `classes` into the `subjectsAndClasses` array format
-    const subjectsAndClasses = subjectCodes.map((code, index) => ({
-      subjectCode: code,
-      classesTaught: classes[index] || [], // Assign classes to each subjectCode
-    }))
-
     console.log("subjectsAndClasses:", subjectsAndClasses) // Log the result for debugging
-
     const teacher = await Teacher.create({
       name,
       email,
@@ -109,11 +97,14 @@ export const addTeacher = async (req, res) => {
       department,
       subjectsAndClasses,
     })
-
-    res.status(201).json({ teacher })
+    res.status(201).json({
+      error: false,
+      message: "Teacher added successfully",
+      data: teacher,
+    })
   } catch (error) {
-    console.error("Error in addTeacher:", error) // Log the error
-    res.status(500).json({ message: "Server Error" })
+    //console.error("Error in addTeacher:", error) // Log the error
+    res.status(500).json({ error: true, message: "Server Error" })
   }
 }
 
@@ -121,14 +112,29 @@ export const getSubjectsByTeachers = async (req, res) => {
   const { teacherId } = req.body
   try {
     const teacher = await Teacher.findById(teacherId)
+      .select("-password -email")
+      .populate({
+        path: "subjectsAndClasses.subject", // Populating the 'subject' field
+        select: "name code", // Optionally select specific fields from Subject (e.g., 'name', 'code')
+      })
+      .exec()
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found" })
     }
-    const subjectCodes = teacher.subjectsAndClasses.map(
-      ({ subjectCode }) => subjectCode
-    )
-    const subjects = await Subject.find({ code: { $in: subjectCodes } })
-    res.status(200).json({ subjects })
+    // const subjectByTecher = teacher.subjectsAndClasses.map(({ subjects }) => {
+    //   const obj = {
+    //     subjectCode: subjects.subject.code,
+    //     subjectName: subjects.subject.name,
+    //     subjectId: subjects.subject._id,
+    //   }
+    //   return obj
+    // })
+    //const subjects = await Subject.find({ code: { $in: subjectCodes } })
+    res.status(200).json({
+      error: false,
+      data: teacher,
+      message: "Teacher fetcched successfully",
+    })
   } catch (error) {
     console.error("Error in getSubjectsByTeachers:", error) // Log the error
     res.status(500).json({ message: "Server Error" })
@@ -152,5 +158,227 @@ export const getClassesBySubject = async (req, res) => {
   } catch (error) {
     console.error("Error in getClassesBySubject:", error) // Log the error
     res.status(500).json({ message: "Server Error" })
+  }
+}
+
+export const getStudentsBySubsection = async (req, res) => {
+  const { branch, subsection, semester, academicYear } = req.body
+  try {
+    const students = await Student.find({
+      branch,
+      semester,
+      academicYear,
+      subsection,
+    })
+      .select("name rollNumber")
+      .sort("rollNumber")
+    res.status(200).json({
+      error: false,
+      data: {
+        branch,
+        semester,
+        academicYear,
+        subsection,
+
+        students,
+      },
+      message: "Students fetched successfully",
+    })
+  } catch (error) {
+    console.error("Error in getStudentsByBranch:", error) // Log the error
+    res.status(500).json({ message: "Server Error" })
+  }
+}
+export const getStudentsByClass = async (req, res) => {
+  const { branch, semester, academicYear } = req.body
+  try {
+    const students = await Student.find({
+      branch,
+      semester,
+      academicYear,
+    })
+      .select("name rollNumber")
+      .sort("rollNumber")
+    res.status(200).json({
+      error: false,
+      data: {
+        branch,
+        semester,
+        academicYear,
+
+        students,
+      },
+      message: "Students fetched successfully",
+    })
+  } catch (error) {
+    console.error("Error in getStudentsByBranch:", error) // Log the error
+    res.status(500).json({ message: "Server Error" })
+  }
+}
+
+//assign-marks-by-class
+
+export const assignMarksByClass = async (req, res) => {
+  const { subjectId, semester, examType, studentMarks } = req.body
+
+  // Validation checks
+  if (!subjectId || !semester || !examType || !Array.isArray(studentMarks)) {
+    return res
+      .status(400)
+      .json({ message: "Missing or invalid required fields" })
+  }
+
+  try {
+    //checking if the subject has practical or not?
+    const subject = await Subject.findById(subjectId)
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" })
+    }
+    const hasPractical = subject.hasPractical
+    //give error if subject doesnot have practical but given exam type like viva1,viva2,endsemPractical,attendancePractical,projectFile
+    if (
+      (!hasPractical && examType.includes("Practical")) ||
+      (!hasPractical &&
+        (examType.includes("viva1") ||
+          examType.includes("viva2") ||
+          examType.includes("projectFile")))
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Subject does not have practical" })
+    }
+    for (const studentMark of studentMarks) {
+      const { rollNumber, marks } = studentMark
+
+      // Step 1: Find the student by roll number
+      const student = await Student.findOne({ rollNumber })
+      if (!student) {
+        console.warn(`Student with roll number ${rollNumber} not found`)
+        continue // Skip this student if not found
+      }
+
+      // Step 2: Check if a result entry already exists
+      let result = await Result.findOne({
+        student: student._id,
+        subject: subjectId,
+        semester,
+      })
+
+      // If no result entry exists, create a new one
+      if (!result) {
+        result = new Result({
+          student: student._id,
+          subject: subjectId,
+          semester,
+        })
+      }
+
+      // Step 3: Assign marks based on the exam type
+      switch (examType) {
+        case "midSem1":
+          result.theoryMarks.midSem1 = marks
+          break
+        case "midSem2":
+          result.theoryMarks.midSem2 = marks
+          break
+        case "endSem":
+          result.theoryMarks.endSem = marks
+          break
+        case "teacherAssessment":
+          result.theoryMarks.teacherAssessment = marks
+          break
+        case "attendanceTheory":
+          result.theoryMarks.attendance = marks
+          break
+        case "viva1":
+          result.practicalMarks.viva1 = marks
+          break
+        case "viva2":
+          result.practicalMarks.viva2 = marks
+          break
+        case "endSemPractical":
+          result.practicalMarks.endSemPractical = marks
+          break
+        case "attendancePractical":
+          result.practicalMarks.attendance = marks
+          break
+        case "projectFile":
+          result.practicalMarks.projectFile = marks
+          break
+        default:
+          return res.status(400).json({ message: "Invalid exam type" })
+      }
+
+      // Step 4: Save or update the result
+      await result.save()
+    }
+
+    return res.status(200).json({ message: "Marks assigned successfully" })
+  } catch (error) {
+    console.error("Error assigning marks:", error)
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+}
+
+//get marks by class and subject
+export const getMarksByClassAndSemester = async (req, res) => {
+  const { branch, subsection, semester, subjectId } = req.body
+
+  try {
+    // Step 1: Fetch all students of the specified class and semester
+    //if subsection is not provided return all students
+    let students
+    if (!subsection) {
+      students = await Student.find({
+        branch,
+        semester,
+      })
+        .select("_id rollNumber name")
+        .sort("rollNumber") // Only fetch necessary fields
+    } else {
+      students = await Student.find({
+        branch,
+        subsection,
+        semester,
+      })
+        .select("_id rollNumber name")
+        .sort("rollNumber") // Only fetch necessary fields
+    }
+
+    // Step 2: Fetch marks for each student for the given subject
+    const results = await Result.find({
+      student: { $in: students.map((student) => student._id) },
+      subject: subjectId,
+    })
+      .populate("student", "rollNumber")
+      .lean()
+
+    // Step 3: Map results to the desired format
+    const marksData = students.map((student) => {
+      const result = results.find(
+        (res) => res.student._id.toString() === student._id.toString()
+      )
+
+      return {
+        rollNumber: student.rollNumber,
+        name: student.name,
+        theoryMarks: result?.theoryMarks || {},
+        practicalMarks: result?.practicalMarks || {},
+        totalMarks: result?.totalMarks || "NA",
+        grade: result?.grade || "NA",
+      }
+    })
+
+    // Respond with the formatted marks data
+    return res
+      .status(200)
+      .json({
+        error: false,
+        data: marksData,
+        message: "marks fetched successfully",
+      })
+  } catch (error) {
+    console.error("Error fetching marks:", error)
+    return res.status(500).json({ error: "Failed to fetch marks" })
   }
 }
