@@ -6,9 +6,12 @@ import {
   addTeacher,
   getSubjectsByTeachers,
   getClassesBySubject,
+  getTeachers,
   addStudent,
+  getStudents,
   getStudentsByClass,
   getStudentsBySubsection,
+  getSubjects,
   assignMarksByClass,
   getMarksByClassAndSemester,
 } from "../controller/adminController.js"
@@ -20,7 +23,9 @@ router.get("/getSubjectsByTeachers", getSubjectsByTeachers) //teacherId
 router.get("/getClassesBySubject", getClassesBySubject) //subjectCode
 router.get("/getStudentByClass", getStudentsByClass)
 router.get("/get-students-by-subsection", getStudentsBySubsection)
-
+router.get('/getTeachers',getTeachers)
+router.get('/getStudents',getStudents)
+router.get('/getSubjects',getSubjects)
 //assign marks
 router.post("/assign-marks", assignMarksByClass)
 //get marks

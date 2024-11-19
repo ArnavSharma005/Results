@@ -382,3 +382,44 @@ export const getMarksByClassAndSemester = async (req, res) => {
     return res.status(500).json({ error: "Failed to fetch marks" })
   }
 }
+
+
+export const getTeachers=async(req,res)=>{
+  try{
+    const teachers = await Teacher.find({})
+    res.status(201).send(teachers)
+  }
+  catch(err)
+  {
+    res.status(402).send(err)
+  }
+}
+
+
+
+
+export const getStudents=async(req,res)=>{
+  try{
+    const students = await Student.find({})
+    res.status(201).send(students)
+  }
+  catch(err)
+  {
+    res.status(402).send(err)
+  }
+}
+
+
+
+export const getSubjects=async(req,res)=>{
+  try{
+    const subjects = await Subject.find({})
+    res.status(201).send(subjects)
+  }
+  catch(err)
+  {
+    res.status(402).send(err)
+  }
+}
+
+
