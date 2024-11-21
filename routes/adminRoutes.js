@@ -14,6 +14,10 @@ import {
   getSubjects,
   assignMarksByClass,
   getMarksByClassAndSemester,
+  getAlldept,
+  getAllBranches,
+  getAllCoreSubjects,
+  getAllOptionalSubjects,
 } from "../controller/adminController.js"
 
 router.post("/addSubject", addSubject) //name, code, credits, theoryCredits, practicalCredits, hasPractical, department, year, semester, isCore
@@ -26,6 +30,10 @@ router.get("/get-students-by-subsection", getStudentsBySubsection)
 router.get('/getTeachers',getTeachers)
 router.get('/getStudents',getStudents)
 router.get('/getSubjects',getSubjects)
+router.get('/getAlldept',getAlldept)
+router.get('/getAllBranches',getAllBranches)
+router.get('/getAllCoreSubjects',getAllCoreSubjects)
+router.get('/getAllOptionalSubjects',getAllOptionalSubjects)
 //assign marks
 router.post("/assign-marks", assignMarksByClass)
 //get marks

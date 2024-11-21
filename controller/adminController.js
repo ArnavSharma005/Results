@@ -426,4 +426,48 @@ export const getSubjects=async(req,res)=>{
   }
 }
 
+export const getAlldept=async(req,res)=>{
+  try{
+    const dept = await Subject.find().distinct('department')
+    res.status(201).json(dept);
+  }
+  catch(err){
+    res.status(500).json({"error" : err});
+  }
+ 
+}
+
+export const getAllBranches=async(req,res)=>{
+  try{
+    const branch = await Student.find().distinct('branch')
+    res.status(201).json(branch);
+  }
+  catch(err){
+    res.status(500).json({"error" : err});
+  }
+ 
+}
+
+export const getAllCoreSubjects=async(req,res)=>{
+  try{
+    const coreSubjects = await Subject.find({isCore:true})
+    res.status(201).json(coreSubjects)
+  }
+  catch(err)
+  {
+    res.status(500).json({"error" : err});
+  }
+}
+
+export const getAllOptionalSubjects=async(req,res)=>{
+  try{
+    const optionalSubjects = await Subject.find({isCore:false})
+    res.status(201).json(optionalSubjects)
+  }
+  catch(err)
+  {
+    res.status(500).json({"error" : err});
+  }
+}
+
 
