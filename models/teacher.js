@@ -11,7 +11,11 @@ const subjectClassMappingSchema = new mongoose.Schema({
     {
       branch: {
         type: String,
-        required: true, //like IT-B
+        required: true, //like IT2
+      },
+      section: {
+        type: String,
+        required: true, //like A
       },
       academicYear: {
         type: String, //like 2023-27

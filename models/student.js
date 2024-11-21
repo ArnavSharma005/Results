@@ -14,6 +14,7 @@ const studentSchema = new mongoose.Schema({
 
   semester: { type: Number, required: true, min: 1, max: 8 },
   branch: { type: String, required: true },
+  section: { type: String, required: true },
   subsection: { type: String, required: true },
 
   subjects: [
