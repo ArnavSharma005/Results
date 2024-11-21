@@ -49,6 +49,7 @@ export const addStudent = async (req, res) => {
     academicYear,
     semester,
     branch,
+    section,
     subsection,
     coreSubjects,
     optionalSubjects,
@@ -62,6 +63,7 @@ export const addStudent = async (req, res) => {
       department,
       academicYear,
       semester,
+      section,
       subsection,
       branch,
       subjects: [
@@ -166,12 +168,13 @@ export const getClassesBySubject = async (req, res) => {
 
 
 export const getStudentsBySubsection = async (req, res) => {
-  const { branch, subsection, semester, academicYear } = req.body
+  const { branch,section, subsection, semester, academicYear } = req.body
   try {
     const students = await Student.find({
       branch,
       semester,
       academicYear,
+      section,  
       subsection,
     })
       .select("name rollNumber")
@@ -194,11 +197,12 @@ export const getStudentsBySubsection = async (req, res) => {
   }
 }
 export const getStudentsByClass = async (req, res) => {
-  const { branch, semester, academicYear } = req.body
+  const { branch,section, semester, academicYear } = req.body
   try {
     const students = await Student.find({
       branch,
       semester,
+      section,
       academicYear,
     })
       .select("name rollNumber")
@@ -326,22 +330,24 @@ export const assignMarksByClass = async (req, res) => {
 
 //get marks by class and subject
 export const getMarksByClassAndSemester = async (req, res) => {
-  const { branch, subsection, semester, subjectId } = req.body
+  const { branch,section ,subsection, semester, subjectId } = req.body
 
   try {
     // Step 1: Fetch all students of the specified class and semester
-    //if subsection is not provided return all students
+    //if subsection is not provided return all students of that section
     let students
     if (!subsection) {
       students = await Student.find({
         branch,
         semester,
+        section,
       })
         .select("_id rollNumber name")
         .sort("rollNumber") // Only fetch necessary fields
     } else {
       students = await Student.find({
         branch,
+        section,
         subsection,
         semester,
       })
