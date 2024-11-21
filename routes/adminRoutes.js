@@ -20,7 +20,7 @@ router.post("/addSubject", addSubject) //name, code, credits, theoryCredits, pra
 router.post("/addTeacher", addTeacher) //name, email, department, subjectCodes ,classes
 router.post("/addStudent", addStudent)
 router.get("/getSubjectsByTeachers", getSubjectsByTeachers) //teacherId
-router.get("/getClassesBySubject", getClassesBySubject) //subjectCode
+router.post("/getClassesBySubject", getClassesBySubject) //subjectCode
 router.get("/getStudentByClass", getStudentsByClass)
 router.get("/get-students-by-subsection", getStudentsBySubsection)
 router.get('/getTeachers',getTeachers)

@@ -142,24 +142,28 @@ export const getSubjectsByTeachers = async (req, res) => {
 }
 
 export const getClassesBySubject = async (req, res) => {
-  const { teacherId, subjectCode } = req.body
+  const { teacherId, subjectCode } = req.body;
+
   try {
-    const teacher = await Teacher.findById(teacherId)
+    const teacher = await Teacher.findById(teacherId);
     if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found" })
+      return res.status(404).json({ message: "Teacher not found" });
     }
-    const subject = teacher.subjectsAndClasses.find(
-      ({ subjectCode: code }) => code === subjectCode
-    )
+
+    // Find the subject based on subjectCode within the teacher's subjectsAndClasses array
+    const subject = teacher.subjectsAndClasses.find(({ subject }) => subject._id == subjectCode);
     if (!subject) {
-      return res.status(404).json({ message: "Subject not found" })
+      return res.status(404).json({ message: "Subject not found" });
     }
-    res.status(200).json({ classes: subject.classesTaught })
+
+    // Return the classesTaught for the found subject
+    res.status(200).json({ classes: subject.classesTaught });
   } catch (error) {
-    console.error("Error in getClassesBySubject:", error) // Log the error
-    res.status(500).json({ message: "Server Error" })
+    console.error("Error in getClassesBySubject:", error); // Log the error
+    res.status(500).json({ message: "Server Error" });
   }
-}
+};
+
 
 export const getStudentsBySubsection = async (req, res) => {
   const { branch, subsection, semester, academicYear } = req.body
