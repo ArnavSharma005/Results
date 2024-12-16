@@ -19,6 +19,7 @@ import {
   getAllCoreSubjects,
   getAllOptionalSubjects,
   getResultByStudent,
+  getSubjectById
 } from "../controller/adminController.js"
 
 router.post("/addSubject", addSubject) //name, code, credits, theoryCredits, practicalCredits, hasPractical, department, year, semester, isCore
@@ -42,4 +43,6 @@ router.post("/assign-marks", assignMarksByClass)
 router.get("/get-class-marks", getMarksByClassAndSemester) //classId, semester
 router.post("/getResultByStudent", getResultByStudent) //studentRollNumber
 
+//get subjectbyid
+router.post("/getSubjectById", getSubjectById) //subjectId in req.body
 export default router

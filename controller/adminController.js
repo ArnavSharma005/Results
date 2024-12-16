@@ -495,4 +495,19 @@ export const getResultByStudent = async (req, res) =>{
   }
 }
 
+export const getSubjectById = async (req, res) => {
+  const { subjectId } = req.body
+  try {
+    const subject = await Subject.findById(subjectId);
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+    res.status(200).json(subject);
+  }
+  catch (error) {
+    console.error("Error in getSubjectById:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+  
+}
 
