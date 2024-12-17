@@ -168,13 +168,13 @@ export const getClassesBySubject = async (req, res) => {
 
 
 export const getStudentsBySubsection = async (req, res) => {
-  const { branch,section, subsection, semester, academicYear } = req.body
+  const { branch, section, subsection, semester, academicYear } = req.body
   try {
     const students = await Student.find({
       branch,
       semester,
       academicYear,
-      section,  
+      section,
       subsection,
     })
       .select("name rollNumber")
@@ -197,7 +197,7 @@ export const getStudentsBySubsection = async (req, res) => {
   }
 }
 export const getStudentsByClass = async (req, res) => {
-  const { branch,section, semester, academicYear } = req.body
+  const { branch, section, semester, academicYear } = req.body
   try {
     const students = await Student.find({
       branch,
@@ -330,7 +330,7 @@ export const assignMarksByClass = async (req, res) => {
 
 //get marks by class and subject
 export const getMarksByClassAndSemester = async (req, res) => {
-  const { branch,section ,subsection, semester, subjectId } = req.body
+  const { branch, section, subsection, semester, subjectId } = req.body
 
   try {
     // Step 1: Fetch all students of the specified class and semester
@@ -394,13 +394,12 @@ export const getMarksByClassAndSemester = async (req, res) => {
 }
 
 
-export const getTeachers=async(req,res)=>{
-  try{
+export const getTeachers = async (req, res) => {
+  try {
     const teachers = await Teacher.find({})
     res.status(201).send(teachers)
   }
-  catch(err)
-  {
+  catch (err) {
     res.status(402).send(err)
   }
 }
@@ -408,106 +407,108 @@ export const getTeachers=async(req,res)=>{
 
 
 
-export const getStudents=async(req,res)=>{
-  try{
+export const getStudents = async (req, res) => {
+  try {
     const students = await Student.find({})
     res.status(201).send(students)
   }
-  catch(err)
-  {
+  catch (err) {
     res.status(402).send(err)
   }
 }
 
 
 
-export const getSubjects=async(req,res)=>{
-  try{
+export const getSubjects = async (req, res) => {
+  try {
     const subjects = await Subject.find({})
     res.status(201).send(subjects)
   }
-  catch(err)
-  {
+  catch (err) {
     res.status(402).send(err)
   }
 }
 
-export const getAlldept=async(req,res)=>{
-  try{
+export const getAlldept = async (req, res) => {
+  try {
     const dept = await Subject.find().distinct('department')
     res.status(201).json(dept);
   }
-  catch(err){
-    res.status(500).json({"error" : err});
+  catch (err) {
+    res.status(500).json({ "error": err });
   }
- 
+
 }
 
-export const getAllBranches=async(req,res)=>{
-  try{
+export const getAllBranches = async (req, res) => {
+  try {
     const branch = await Student.find().distinct('branch')
     res.status(201).json(branch);
   }
-  catch(err){
-    res.status(500).json({"error" : err});
+  catch (err) {
+    res.status(500).json({ "error": err });
   }
- 
+
 }
 
-export const getAllCoreSubjects=async(req,res)=>{
-  try{
-    const coreSubjects = await Subject.find({isCore:true})
+export const getAllCoreSubjects = async (req, res) => {
+  try {
+    const coreSubjects = await Subject.find({ isCore: true })
     res.status(201).json(coreSubjects)
   }
-  catch(err)
-  {
-    res.status(500).json({"error" : err});
+  catch (err) {
+    res.status(500).json({ "error": err });
   }
 }
 
-export const getAllOptionalSubjects=async(req,res)=>{
-  try{
-    const optionalSubjects = await Subject.find({isCore:false})
+export const getAllOptionalSubjects = async (req, res) => {
+  try {
+    const optionalSubjects = await Subject.find({ isCore: false })
     res.status(201).json(optionalSubjects)
   }
-  catch(err)
-  {
-    res.status(500).json({"error" : err});
+  catch (err) {
+    res.status(500).json({ "error": err });
   }
 }
 
-export const getResultByStudent = async (req, res) =>{
-  const {rollNumber} = req.body;
-  try{
-    const student=await Student.findOne({rollNumber:rollNumber});
-    if(!student){
-      return res.status(404).json({message:"Student not found"});
+export const getResultByStudent = async (req, res) => {
+  const { rollNumber } = req.body;
+  try {
+    const student = await Student.findOne({ rollNumber: rollNumber });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
     }
-    const results = await Result.find({student:student._id})
-    if(!results){
-      return res.status(404).json({message:"Result not found"});
+    const results = await Result.find({ student: student._id })
+    if (!results) {
+      return res.status(404).json({ message: "Result not found" });
     }
     res.status(201).json(results);
-
   }
-  catch(err){
-    res.status(500).json({message:"Server Error"})
+  catch (err) {
+    res.status(500).json({ message: "Server Error" })
   }
 }
-
-export const getSubjectById = async (req, res) => {
-  const { subjectId } = req.body
+export const getSubjectbyId = async (req, res) => {
+  const { SubjectIdArr } = req.body;
   try {
-    const subject = await Subject.findById(subjectId);
-    if (!subject) {
-      return res.status(404).json({ message: "Subject not found" });
+    // Process all subject IDs in parallel
+    const subjects = await Promise.all(
+      SubjectIdArr.map(async (id) => {
+        const subject = await Subject.findById(id);
+        return subject;
+      })
+    );
+
+    // Filter out any null values
+    const validSubjects = subjects.filter(subject => subject !== null);
+
+    if (validSubjects.length === 0) {
+      return res.status(404).json({ message: "No subjects found" });
     }
-    res.status(200).json(subject);
-  }
-  catch (error) {
-    console.error("Error in getSubjectById:", error);
+
+    return res.status(200).json(validSubjects);
+  } catch (err) {
+    console.log(err)
     res.status(500).json({ message: "Server Error" });
   }
-  
-}
-
+};

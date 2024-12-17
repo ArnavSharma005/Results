@@ -19,7 +19,7 @@ import {
   getAllCoreSubjects,
   getAllOptionalSubjects,
   getResultByStudent,
-  getSubjectById
+  getSubjectbyId
 } from "../controller/adminController.js"
 
 router.post("/addSubject", addSubject) //name, code, credits, theoryCredits, practicalCredits, hasPractical, department, year, semester, isCore
@@ -29,13 +29,13 @@ router.get("/getSubjectsByTeachers", getSubjectsByTeachers) //teacherId
 router.post("/getClassesBySubject", getClassesBySubject) //subjectCode
 router.get("/getStudentByClass", getStudentsByClass)
 router.get("/get-students-by-subsection", getStudentsBySubsection)
-router.get('/getTeachers',getTeachers)
-router.get('/getStudents',getStudents)
-router.get('/getSubjects',getSubjects)
-router.get('/getAlldept',getAlldept)
-router.get('/getAllBranches',getAllBranches)
-router.get('/getAllCoreSubjects',getAllCoreSubjects)
-router.get('/getAllOptionalSubjects',getAllOptionalSubjects)
+router.get('/getTeachers', getTeachers)
+router.get('/getStudents', getStudents)
+router.get('/getSubjects', getSubjects)
+router.get('/getAlldept', getAlldept)
+router.get('/getAllBranches', getAllBranches)
+router.get('/getAllCoreSubjects', getAllCoreSubjects)
+router.get('/getAllOptionalSubjects', getAllOptionalSubjects)
 //assign marks
 router.post("/assign-marks", assignMarksByClass)
 //get marks
@@ -44,5 +44,5 @@ router.get("/get-class-marks", getMarksByClassAndSemester) //classId, semester
 router.post("/getResultByStudent", getResultByStudent) //studentRollNumber
 
 //get subjectbyid
-router.post("/getSubjectById", getSubjectById) //subjectId in req.body
+router.post("/getSubjectById", getSubjectbyId) //subjectId in req.body
 export default router
